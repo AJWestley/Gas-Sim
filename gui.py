@@ -49,7 +49,7 @@ while running:
         elif clear_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN:
             particle_list.clear()
         elif create_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN and len(particle_list) == 0:
-            particle_count = 100
+            particle_count = 200
             ave_vel = 30
             mass = 1
             radius = 5

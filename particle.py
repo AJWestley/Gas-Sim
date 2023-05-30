@@ -111,6 +111,17 @@ def collide(p1: particle, p2: particle):
     p1.x_vel, p1.y_vel = (v1col[0] + v1rem[0], v1col[1] + v1rem[1])
     p2.x_vel, p2.y_vel = (v2col[0] + v2rem[0], v2col[1] + v2rem[1])
     
+    dpos = [p2.x - p1.x, p2.y - p1.y]
+    dpos_mag = sqrt(dpos[0]**2 + dpos[1]**2)
+    dpos_unit = [dpos[0] / dpos_mag, dpos[1] / dpos_mag]
+    
+    dp = [((p1.radius + p2.radius - dpos_mag) / 2) * dpos_unit[0], ((p1.radius + p2.radius - dpos_mag) / 2) * dpos_unit[1]]
+    
+    p1.x -= dp[0]
+    p1.y -= dp[1]
+    p2.x += dp[0]
+    p2.y += dp[1]
+    
 
 def update_positions(particles: list, box: list, delta: int):
     cols = get_collisions(particles)
