@@ -13,25 +13,30 @@ class particle:
         self.radius = radius
         self.collisionless = collisionless
         self.colour = colour
+        self.occupied_blocks = []
 
-    def update_position(self, bounds, particles, delta):
-        if self.collisionless: self.__collisionless_move(bounds, delta)
-        else: self.__collision_move(bounds, particles, delta)
-
-    def __collisionless_move(self, bounds, delta):
-        if self.x - self.radius <= bounds[0] or self.x + self.radius >= bounds[1]:
+    def update_position(self, bounds, delta):
+        if self.x - self.radius <= bounds[0]:
             self.x_vel = -self.x_vel
-        if self.y - self.radius <= bounds[2] or self.y + self.radius >= bounds[3]:
+            self.x = bounds[0] + self.radius
+        elif self.x + self.radius >= bounds[1]:
+            self.x_vel = -self.x_vel
+            self.x = bounds[1] - self.radius
+        if self.y - self.radius <= bounds[2]:
             self.y_vel = -self.y_vel
+            self.y = bounds[2] + self.radius
+        elif self.y + self.radius >= bounds[3]:
+            self.y_vel = -self.y_vel
+            self.y = bounds[3] - self.radius
         dx = (self.x_vel / 1000) * delta
         dy = (self.y_vel / 1000) * delta
         self.x += dx
         self.y += dy
-
-    def __collision_move(self, bounds, particles, delta):
-        #TODO
-        pass
         
+    def collides_with(self, p):
+        if sqrt((self.x - p.x)**2 + (self.y - p.y)**2) <= self.radius + p.radius:
+            return True
+        return False
         
 
 def generate_gas(num_particles: int, bounds: list, average_vel: float, collisionless: bool, colour: tuple, highlight: tuple, mass=5, radius=5):
@@ -66,3 +71,50 @@ def generate_gas(num_particles: int, bounds: list, average_vel: float, collision
         particles.append(p)
 
     return particles
+
+def get_collisions(particles: list):
+    collisions = []
+    for i in range(len(particles)):
+        if particles[i].collisionless: continue
+        for j in range(i+1, len(particles)):
+            if particles[j].collisionless: continue
+            if particles[i].collides_with(particles[j]):
+                collisions.append((i, j))
+    return collisions
+
+def collide(p1: particle, p2: particle):
+    col_norm = [p1.x - p2.x, p1.y - p2.y]
+    col_norm_l = sqrt(col_norm[0]**2 + col_norm[1]**2)
+    col_norm = [col_norm[0] / col_norm_l, col_norm[1] / col_norm_l]
+    
+    v1 = [p1.x_vel, p1.y_vel]
+    v1_dot_cn = v1[0] * col_norm[0] + v1[1] * col_norm[1]
+    v1col = [col_norm[0] * v1_dot_cn, col_norm[1] * v1_dot_cn]
+    v1rem = [v1[0] - v1col[0], v1[1] - v1col[1]]
+    
+    v2 = [p2.x_vel, p2.y_vel]
+    v2_dot_cn = v2[0] * col_norm[0] + v2[1] * col_norm[1]
+    v2col = [col_norm[0] * v2_dot_cn, col_norm[1] * v2_dot_cn]
+    v2rem = [v2[0] - v2col[0], v2[1] - v2col[1]]
+    
+    v1length = sqrt(v1col[0]**2 + v1col[1]**2) * (v1_dot_cn / abs(v1_dot_cn))
+    v2length = sqrt(v2col[0]**2 + v2col[1]**2) * (v2_dot_cn / abs(v2_dot_cn))
+    
+    commonvel = 2 * (p1.mass * v1length + p2.mass * v2length) / (p1.mass + p2.mass)
+    
+    v1len_aft = commonvel - v1length
+    v2len_aft = commonvel - v2length
+    
+    v1col = [v1col[0] * (v1len_aft / v1length), v1col[1] * (v1len_aft / v1length)]
+    v2col = [v2col[0] * (v2len_aft / v2length), v2col[1] * (v2len_aft / v2length)]
+    
+    p1.x_vel, p1.y_vel = (v1col[0] + v1rem[0], v1col[1] + v1rem[1])
+    p2.x_vel, p2.y_vel = (v2col[0] + v2rem[0], v2col[1] + v2rem[1])
+    
+
+def update_positions(particles: list, box: list, delta: int):
+    cols = get_collisions(particles)
+    for a, b in cols:
+        collide(particles[a], particles[b])
+    for p in particles:
+        p.update_position(box, delta)

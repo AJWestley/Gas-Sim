@@ -23,7 +23,7 @@ screen = pg.display.set_mode((WIDTH, HEIGHT))
 
 delta = 100
 running = True
-paused = False
+paused = True
 clock = pg.time.Clock()
 screen.fill((20, 20, 20))
 # ------------------------------------ #
@@ -49,7 +49,7 @@ while running:
         elif clear_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN:
             particle_list.clear()
         elif create_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN and len(particle_list) == 0:
-            particle_count = 800
+            particle_count = 100
             ave_vel = 30
             mass = 1
             radius = 5
@@ -79,6 +79,5 @@ while running:
 
     # ---------- Updates ----------- #
     if not paused:
-        for p in particle_list:
-            p.update_position(box, particle_list, delta)
+        particle.update_positions(particle_list, box, delta)
     # -------------------------------- #
