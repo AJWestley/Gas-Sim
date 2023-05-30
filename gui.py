@@ -51,10 +51,9 @@ while running:
         elif create_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN and len(particle_list) == 0:
             particle_count = 200
             ave_vel = 30
-            mass = 1
-            radius = 5
+            radius = 10
             hl = RED if highlight_button.checked else BLUE
-            particle_list = particle.generate_gas(particle_count, [350, 650, 150, 450], ave_vel, ideal_check.checked, BLUE, hl)
+            particle_list = particle.generate_gas(particle_count, [300, 700, 100, 500], ave_vel, ideal_check.checked, BLUE, hl, radius=radius)
 
     # -------------------------------- #
 
