@@ -1,5 +1,5 @@
 import pygame as pg
-from button import Button, CheckBox
+from button import Button, CheckBox, TextInput
 from colours import BLACK, WHITE, RED, GREEN, BLUE
 import particle
 from collisions import SpatialHashMap
@@ -8,17 +8,16 @@ from collisions import SpatialHashMap
 WIDTH, HEIGHT = 800, 600
 
 box = [250, 750, 50, 550]
-particle_radius = 5
+particle_radius = 3
 particle_list = []
 particle_map = SpatialHashMap(box, int(particle_radius * 1.5))
 
 pause_button = Button(50, 50, 120, 40, "Pause/Play", 3, 24, text_mult=0.15, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
-ideal_check = CheckBox(140, 250, 25, "Ideal", 3, 24, text_mult=1.8, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
 clear_button = Button(50, 120, 120, 40, "Clear", 3, 24, text_mult=0.3, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
+particle_num_input = TextInput(85, 300, 80, 35, "Number of particles", 3, 24, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
+ideal_check = CheckBox(140, 350, 25, "Ideal", 3, 24, text_mult=1.8, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
+highlight_button = CheckBox(140, 400, 25, "Highlight", 3, 24, text_mult=3, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
 create_button = Button(50, 500, 120, 40, "Create", 3, 24, text_mult=0.25, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
-#Number of Particles
-#Temperature Options
-highlight_button = CheckBox(140, 350, 25, "Highlight", 3, 24, text_mult=3, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
 
 pg.init()
 pg.display.set_caption('Gas Simulation')
@@ -49,17 +48,26 @@ while running:
             ideal_check.checked = not ideal_check.checked
         elif highlight_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN:
             highlight_button.checked = not highlight_button.checked
+        elif particle_num_input.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN:
+            particle_num_input.active = True
         elif clear_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN:
             particle_list.clear()
             for bucket in particle_map.map:
                 bucket.clear()
         elif create_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN and len(particle_list) == 0:
-            particle_count = 2000
+            particle_count = int(particle_num_input.value)
             ave_vel = 30
             hl = RED if highlight_button.checked else BLUE
-            particle_list = particle.generate_gas(particle_count, [300, 700, 100, 500], ave_vel, ideal_check.checked, BLUE, hl, radius=particle_radius)
+            particle_list = particle.generate_gas(particle_count, [280, 720, 80, 520], ave_vel, ideal_check.checked, BLUE, hl, radius=particle_radius)
             for p in particle_list:
                 particle_map.insert((p.x, p.y), p)
+        elif event.type == pg.MOUSEBUTTONDOWN:
+            particle_num_input.active = False
+        elif event.type == pg.KEYDOWN and particle_num_input.active:
+            if event.key == pg.K_BACKSPACE:
+                particle_num_input.backspace()
+            else:
+                particle_num_input.add(event.unicode)
 
     # -------------------------------- #
 
@@ -78,6 +86,7 @@ while running:
     create_button.draw(pg, screen)
     ideal_check.draw(pg, screen)
     highlight_button.draw(pg, screen)
+    particle_num_input.draw(pg, screen)
 
     pg.display.flip()
     # -------------------------------- #
