@@ -72,16 +72,6 @@ def generate_gas(num_particles: int, bounds: list, average_vel: float, collision
 
     return particles
 
-def get_collisions(particles: list):
-    collisions = []
-    for i in range(len(particles)):
-        if particles[i].collisionless: continue
-        for j in range(i+1, len(particles)):
-            if particles[j].collisionless: continue
-            if particles[i].collides_with(particles[j]):
-                collisions.append((i, j))
-    return collisions
-
 def collide(p1: particle, p2: particle):
     col_norm = [p1.x - p2.x, p1.y - p2.y]
     col_norm_l = sqrt(col_norm[0]**2 + col_norm[1]**2)
@@ -122,10 +112,3 @@ def collide(p1: particle, p2: particle):
     p2.x += dp[0]
     p2.y += dp[1]
     
-
-def update_positions(particles: list, box: list, delta: int):
-    cols = get_collisions(particles)
-    for a, b in cols:
-        collide(particles[a], particles[b])
-    for p in particles:
-        p.update_position(box, delta)

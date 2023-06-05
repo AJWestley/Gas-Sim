@@ -8,8 +8,9 @@ from collisions import SpatialHashMap
 WIDTH, HEIGHT = 800, 600
 
 box = [250, 750, 50, 550]
+particle_radius = 5
 particle_list = []
-particle_map = SpatialHashMap(box, 5)
+particle_map = SpatialHashMap(box, int(particle_radius * 1.5))
 
 pause_button = Button(50, 50, 120, 40, "Pause/Play", 3, 24, text_mult=0.15, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
 ideal_check = CheckBox(140, 250, 25, "Ideal", 3, 24, text_mult=1.8, border_colour=WHITE, fill_colour=(30, 30, 40), hover_colour=(60, 60, 80))
@@ -50,12 +51,13 @@ while running:
             highlight_button.checked = not highlight_button.checked
         elif clear_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN:
             particle_list.clear()
+            for bucket in particle_map.map:
+                bucket.clear()
         elif create_button.check_over(m_x, m_y) and event.type == pg.MOUSEBUTTONDOWN and len(particle_list) == 0:
             particle_count = 2000
             ave_vel = 30
-            radius = 5
             hl = RED if highlight_button.checked else BLUE
-            particle_list = particle.generate_gas(particle_count, [300, 700, 100, 500], ave_vel, ideal_check.checked, BLUE, hl, radius=radius)
+            particle_list = particle.generate_gas(particle_count, [300, 700, 100, 500], ave_vel, ideal_check.checked, BLUE, hl, radius=particle_radius)
             for p in particle_list:
                 particle_map.insert((p.x, p.y), p)
 
