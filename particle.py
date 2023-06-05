@@ -13,7 +13,6 @@ class particle:
         self.radius = radius
         self.collisionless = collisionless
         self.colour = colour
-        self.occupied_blocks = []
 
     def update_position(self, bounds, delta):
         if self.x - self.radius <= bounds[0]:
