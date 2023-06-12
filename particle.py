@@ -33,9 +33,7 @@ class particle:
         self.y += dy
         
     def collides_with(self, p):
-        if sqrt((self.x - p.x)**2 + (self.y - p.y)**2) <= self.radius + p.radius:
-            return True
-        return False
+        return sqrt((self.x - p.x)**2 + (self.y - p.y)**2) <= self.radius + p.radius
         
 
 def generate_gas(num_particles: int, bounds: list, average_vel: float, collisionless: bool, colour: tuple, highlight: tuple, mass=5, radius=5):

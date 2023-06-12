@@ -17,7 +17,7 @@ class SpatialHashMap:
         self.height = ((grid_dimensions[3] - grid_dimensions[2]) // self.cell_size) + 1
         self.cell_size = self.cell_size
         cell_num = self.width * self.height
-        self.map = [[] for i in range(cell_num)]
+        self.map = [[] for _ in range(cell_num)]
         
     def _hash(self, coords: tuple):
         x = coords[0] - self.left
@@ -42,40 +42,40 @@ class SpatialHashMap:
         
     def get_collisions(self):
         collisions = []
-        
+
         for i, bucket in enumerate(self.map):
             for a in range(len(bucket)):
                 if bucket[a].collisionless: continue
-                
+
                 # This bucket
                 for b in range(a+1, len(bucket)):
                     if bucket[b].collisionless: continue
                     if bucket[a].collides_with(bucket[b]):
                         collisions.append((bucket, a, bucket, b))
-                        
+
                 buckets_to_check = []
                 # (x+1, y) bucket
                 if (i % self.width) + 1 < self.width:
                     buckets_to_check.append(self.map[i + 1])
-                    
+
                     # (x+1, y-1) bucket
                     if i - self.width >= 0:
                         buckets_to_check.append(self.map[i - self.width + 1])
-                
+
                 # (x, y-1) bucket
                 if i -self.width >= 0:
                     buckets_to_check.append(self.map[i - self.width])
 
                     # (x-1, y-1) bucket
-                    if (i % self.width) - 1 >= 0:
+                    if i % self.width >= 1:
                         buckets_to_check.append(self.map[i - self.width - 1])
-        
+
                 for neighbour in buckets_to_check:
                     for b in range(len(neighbour)):
                         if neighbour[b].collisionless: continue
                         if bucket[a].collides_with(neighbour[b]):
                             collisions.append((bucket, a, neighbour, b))
-        
+
         return collisions
     
     def update_positions(self, box: list, delta: int):

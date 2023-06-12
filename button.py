@@ -116,9 +116,7 @@ class TextInput:
         self.value = ''.join(l)
         
     def backspace(self):
-        if len(self.value) <= 1: self.value = '0'
-        else: 
-            self.value = self.value[:len(self.value)-1]
+        self.value = '0' if len(self.value) <= 1 else self.value[:-1]
             
 class IntensityButton:
     
